@@ -1,0 +1,102 @@
+<?xml version="1.1" standalone='no'?>
+<autos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:noNamespaceSchemaLocation="autos.xsd">
+    <auto name="gol" neighborhood="Moore">
+        <state name="dead" color="000000" default="0">
+            <ts to="1">.3</ts>
+        </state>
+        <state name="alive" color="FFFFFF" default="0">
+            <ts to="1">.[23]</ts>
+        </state>
+    </auto>
+    <auto name="gol_neuman" neighborhood="Neuman">
+        <state name="dead" color="000000" default="0">
+            <ts to="1">.3</ts>
+        </state>
+        <state name="alive" color="FFFFFF" default="0">
+            <ts to="1">.[23]</ts>
+        </state>
+    </auto>
+    <auto name="gol_big_x" neighborhood="BigX">
+        <state name="dead" color="000000" default="0">
+            <ts to="1">.3</ts>
+        </state>
+        <state name="alive" color="FFFFFF" default="0">
+            <ts to="1">.[23]</ts>
+        </state>
+    </auto>
+    <auto name="wireworld" neighborhood="Moore">
+        <state name="Nothing" color="000000" default="0"/>
+        <state name="Head" color="0000FF" default="2" />
+        <state name="Tail" color="FF0000" default="3" />
+        <state name="Conduit" color="FFFF00" default="3">
+            <ts to="1">.[12]..</ts>
+        </state>
+    </auto>
+    <auto name="brians_brain" neighborhood="Moore">
+        <state name="Dead" default="0" color="000000">
+            <ts to="1">.2.</ts>
+        </state>
+        <state name="Alive" default="2" color="FFFFFF" />
+        <state name="Dying" default="0" color="0000FF" />
+    </auto>
+    <auto name="day_and_night" neighborhood="Moore">
+        <state name="Dead" default="0" color="000000">
+            <ts to="1">.[368]</ts>
+        </state>
+        <state name="Alive" default="1" color="FFFF00">
+            <ts to="0">.[0125]</ts>
+        </state>
+    </auto>
+    <auto name="seeds" neighborhood="Moore">
+        <state name="Dead" default="0" color="000000">
+            <ts to="1">.2</ts>
+        </state>
+        <state name="Alive" default="0" color="00FF00" />
+    </auto>
+    <auto name="gol_and_d" neighborhood="Moore">
+        <state name="Dead" default="0" color="000000">
+            <ts to="1">.3.</ts>
+        </state>
+        <state name="Alive" default="1" color="FFFFFF">
+            <ts to="2">.[0145678].</ts>
+        </state>
+        <state name="Dying" default="0" color="0000FF" />
+    </auto>
+    <auto name="soldier" neighborhood="Moore">
+        <state name="Nothing" default="0" color="000000">
+            <ts to="1">.20..</ts>
+            <ts to="2">.02..</ts>
+        </state>
+        <state name="Red" default="0" color="FF0000">
+            <ts to="3">v5....</ts>
+        </state>
+        <state name="Blue" default="0" color="0000FF">
+            <ts to="3">v5....</ts>
+        </state>
+        <state name="Dead" default="3" color="a0a0a0">
+            <ts to="0">...4.</ts>
+        </state>
+        <state name="Wall" default="4" color="FFFFFF" />
+    </auto>
+    <auto name="path" neighborhood="Moore">
+        <state name="Nothing" default="0" color="00FF00">
+            <ts to="2">.^00.</ts>
+            <ts to="3">..^0.</ts>
+        </state>
+        <state name="Path Center" default="1" color="7A2700" />
+        <state name="Path Edge" default="2" color="7F6A4F">
+            <ts to="0">.0..</ts>
+        </state>
+        <state name="Path Outer Wall" default="3" color="828282">
+            <ts to="2">.^0..</ts>
+            <ts to="0">..0.</ts>
+        </state>
+    </auto>
+    <auto name="test" neighborhood="Plus">
+        <state name="0" default="0" color="000000"></state>
+        <state name="1" default="0" color="FFFFFF">
+            <ts to="1">3.</ts>
+        </state>
+    </auto>
+</autos>

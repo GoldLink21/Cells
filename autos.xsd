@@ -1,0 +1,64 @@
+<!-- Verifies autos.xml -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Root element -->
+    <xs:element name="autos">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="auto" maxOccurs="unbounded" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Auto element -->
+    <xs:element name="auto">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="state" maxOccurs="unbounded" minOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="neighborhood">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="Moore"/>
+                        <xs:enumeration value="Neuman"/>
+                        <xs:enumeration value="Plus"/>
+                        <xs:enumeration value="Diag"/>
+                        <xs:enumeration value="Hat"/>
+                        <xs:enumeration value="BigX"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- State element -->
+    <xs:element name="state">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="ts" maxOccurs="unbounded" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="default" type="xs:string" use="required"/>
+            <xs:attribute name="color" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="[0-9A-Fa-f]{6}"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- TS element -->
+    <xs:element name="ts">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="to" type="xs:integer" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

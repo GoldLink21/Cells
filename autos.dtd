@@ -1,0 +1,20 @@
+<!-- Verifies autos.xml 
+    This was used with ChatGPT to generate the xsd file that
+    does a more in depth verification
+ -->
+<!ELEMENT autos (auto*)>
+<!ELEMENT auto (state+)>
+<!ELEMENT state (ts*)>
+<!ELEMENT ts (#PCDATA)>
+<!ATTLIST auto
+    name CDATA #REQUIRED
+    neighborhood (Moore|Neuman|Plus|Diag|Hat|BigX) #REQUIRED  
+>
+<!ATTLIST state 
+    name CDATA #IMPLIED
+    default CDATA #REQUIRED
+    color CDATA #REQUIRED
+>
+<!ATTLIST ts
+    to CDATA #REQUIRED
+>

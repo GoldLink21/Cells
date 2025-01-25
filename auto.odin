@@ -3,6 +3,7 @@ package cells
 import "core:fmt"
 import rl "vendor:raylib"
 import "core:math/rand"
+import "core:strings"
 
 // grid[x][y]
 Grid :: [GRID_SIZE][GRID_SIZE]Cell
@@ -28,6 +29,15 @@ Neighborhood :: enum {
     BigX, 
 }
 
+NeighborhoodFromString := map[string]Neighborhood {
+    "Moore" = .Moore,
+    "Neuman" = .Neuman,
+    "Plus" = .Plus,
+    "Diag" = .Diag,
+    "Hat" = .Hat,
+    "BigX" = .BigX
+}
+
 // Cellular Automaton
 CA :: struct {
     // What constitutes a neighbor to this CA
@@ -46,8 +56,10 @@ CellTransitions :: []struct {
     // The state this state will transition to if no rules fit
     default: CellState,
     // A list of conditions and the states those transition to
-    rules: []struct { cond: TransitionCondition, endState: CellState }
+    rules: []CellTransitionRule
 }
+
+CellTransitionRule :: struct { cond: TransitionCondition, endState: CellState }
 
 CellState :: int
 /* Tells when neighbors should transition into a different state
@@ -56,6 +68,7 @@ CellState :: int
         y is the number of state 1 neighbors
         and so on and so on. Can use . for any number of neigbors
         Can add < or > before a number to specify a condition, thus <3
+        Can use v for < or ^ for > because of the XML format using &lt; and &gt;
         Can also use [nnn] to specify multiple accepatable values for a cell
 
 */
@@ -232,8 +245,9 @@ ruleMatches :: proc(cond:TransitionCondition, counts:[]u8) -> bool {
                 operation = .Eq
                 ci += 1
             }
-            case '<': operation = .Lt
-            case '>': operation = .Gt
+            // Because of xml markup, I add other ways to go gt and lt
+            case '<', 'v': operation = .Lt
+            case '>', '^': operation = .Gt
             case '!': operation = .Ne
             // Not important since numbers are just equality checks, but why not
             case '=': operation = .Eq
@@ -301,7 +315,11 @@ nextCell :: proc(cx, cy: int, ca:CA, grid:^Grid) -> Cell {
     return Cell{s, nil, nil}
 }
 
-changeAuto :: proc(newAuto: CA) {
+changeAuto :: proc(naName: string) -> bool {
+    if naName not_in autos {
+        return false
+    }
+    newAuto := autos[naName]
     // Reset colors
     for x in 0..<len(activeGrid) {
         for y in 0..<len(activeGrid[0]) {
@@ -311,7 +329,10 @@ changeAuto :: proc(newAuto: CA) {
             activeGrid[x][y].color = nil
         }
     }
+    delete(activeCAName)
+    activeCAName = strings.clone(naName)
     activeCA = newAuto
+    return true
 }
 
 // TODO: B###/S### 

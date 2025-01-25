@@ -32,12 +32,16 @@ runCommand :: proc(input: string) -> union{string} {
                 argCount(len(args), 1, "auto") or_return
                 name := args[1]
                 if name == "?" || name == "list" {
-                    return "TODO: list autos"
+                    ret := "Available autos"
+                    for k, _ in autos {
+                        ret = fmt.tprintf("%s\n- %s",ret, k)
+                    }
+                    return ret
                 }
                 if name not_in autos {
                     return fmt.tprintf("Invalid auto name '%s'", name)
                 }
-                changeAuto(autos[name])
+                changeAuto(name)
                 return fmt.tprintf("Changed to '%s'", name)
             }
             case "rate", "r": {
@@ -45,6 +49,21 @@ runCommand :: proc(input: string) -> union{string} {
                 val := intArg(args[1], "rate") or_return
                 updateRate = val
                 return fmt.tprintf("Set update rate to '%d'", updateRate)
+            }
+            case "reload": {
+                if !readAutosXML() {
+                    return "Could not load autos.xml"
+                } else {
+                    // Cleanup
+                    if activeCAName in autos {
+                        activeCA = autos[activeCAName]
+                        // Don't need to clear
+                    } else {
+                        activeCA = autos["gol"]
+                        fillCells(activeGrid, {0,nil,nil})
+                    }
+                    return "Loaded autos.xml"
+                }
             }
             // Default case falls through
         }

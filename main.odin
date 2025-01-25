@@ -3,6 +3,8 @@ package cells
 import "core:fmt"
 import rl "vendor:raylib"
 import "core:os"
+import "core:encoding/xml"
+import "core:strings"
 
 // Expected size for each cell
 CELL_SIZE :: i32(20)
@@ -40,23 +42,32 @@ penCell : CellState = 1
 
 // The current Cellular Automaton
 activeCA : CA = {}
+activeCAName : string = "gol"
 // Flag for if the state should advance one step
 step := false
 
 // How many ticks between each iteration
-updateRate := 10
+updateRate := 5
 
 main :: proc() {
     using rl
     SetTraceLogLevel(.ERROR)
 
+    if !readAutosXML() {
+        exitf("Could not load Autos")
+    }
 
     // gol := autoFromBirthSurvive("B3/S23")
     // fmt.println(gol)
 
     // autoFromBirthSurviveLog("B3/S23")
 
-    activeCA = autos["soldier"]
+    // Cloned to avoid free errors later on
+    activeCAName = strings.clone(activeCAName)
+    // Will fault if invalid, which is OK
+    activeCA = autos[activeCAName]
+
+    // Set up grid
     fillCells(activeGrid, Cell{ 0, nil, nil })
 
     InitWindow(SCREEN_SIZE + SIDE_WINDOW_WIDTH, SCREEN_SIZE,"Cells")
@@ -173,6 +184,10 @@ drawPalette :: proc(ca: CA) {
 
 // Helper function for exiting with a message
 exitf :: proc(msg: string, args:..any) {
-    fmt.printf(msg, args)
+    if len(args) == 0 {
+        fmt.printfln(msg)
+    } else {
+        fmt.printfln(msg, args)
+    }
     os.exit(1)
 }

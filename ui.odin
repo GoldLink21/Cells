@@ -9,7 +9,7 @@ import mu "vendor:microui"
 
 // Handle Inputs going to UI
 handleUIInputs :: proc() {
-    ctx := &state.mu_ctx
+    ctx := &mu_state.mu_ctx
     
     // text input
     text_input: [512]byte = ---
@@ -56,13 +56,12 @@ handleUIInputs :: proc() {
         {.BACKSPACE,     .BACKSPACE},
     }
     for key in keys_to_check {
-        if rl.IsKeyPressed(key.rl_key) {
+        if rl.IsKeyPressed(key.rl_key) || rl.IsKeyPressedRepeat(key.rl_key) {
             mu.input_key_down(ctx, key.mu_key)
         } else if rl.IsKeyReleased(key.rl_key) {
             mu.input_key_up(ctx, key.mu_key)
         }
     }
-        
 }
 
 // Initialize the UI
@@ -80,9 +79,9 @@ initUI :: proc() {
         mipmaps = 1,
         format  = .UNCOMPRESSED_R8G8B8A8,
     }
-    state.atlas_texture = rl.LoadTextureFromImage(image)
+    mu_state.atlas_texture = rl.LoadTextureFromImage(image)
 
-    ctx := &state.mu_ctx
+    ctx := &mu_state.mu_ctx
     mu.init(ctx)
 
     ctx.text_width = mu.default_atlas_text_width
@@ -92,20 +91,20 @@ initUI :: proc() {
 
 // Deinitialize the UI
 cleanupUI :: proc() {
-    rl.UnloadTexture(state.atlas_texture)
+    rl.UnloadTexture(mu_state.atlas_texture)
 }
 
 // Draw everything with the UI
 drawUI :: proc() {
     using mu
-    ctx := &state.mu_ctx
+    ctx := &mu_state.mu_ctx
     begin(ctx)
         all_windows(ctx)
     end(ctx)
     render(ctx)
 }
 
-state : struct {
+mu_state : struct {
     mu_ctx:             mu.Context,
     log_buf:         [1<<16]byte,
     log_buf_len:     int,
@@ -126,7 +125,7 @@ render :: proc(ctx: ^mu.Context) {
             f32(rect.h),
         }
         position := rl.Vector2{f32(pos.x), f32(pos.y)}
-        rl.DrawTextureRec(state.atlas_texture, source, position, transmute(rl.Color)color)
+        rl.DrawTextureRec(mu_state.atlas_texture, source, position, transmute(rl.Color)color)
     }
     
     rl.BeginScissorMode(0, 0, rl.GetScreenWidth(), rl.GetScreenHeight())
@@ -173,17 +172,17 @@ u8_slider :: proc(ctx: ^mu.Context, val: ^u8, lo, hi: u8) -> (res: mu.Result_Set
 write_log :: proc(str: string) {
     out := runCommand(str)
     if out == nil || out.(string) == "" do return
-    state.log_buf_len += copy(state.log_buf[state.log_buf_len:], out.(string))
-    state.log_buf_len += copy(state.log_buf[state.log_buf_len:], "\n")
-    state.log_buf_updated = true
+    mu_state.log_buf_len += copy(mu_state.log_buf[mu_state.log_buf_len:], out.(string))
+    mu_state.log_buf_len += copy(mu_state.log_buf[mu_state.log_buf_len:], "\n")
+    mu_state.log_buf_updated = true
 }
 
 read_log :: proc() -> string {
-    return string(state.log_buf[:state.log_buf_len])
+    return string(mu_state.log_buf[:mu_state.log_buf_len])
 }
 reset_log :: proc() {
-    state.log_buf_updated = true
-    state.log_buf_len = 0
+    mu_state.log_buf_updated = true
+    mu_state.log_buf_len = 0
 }
 
 
@@ -195,10 +194,10 @@ all_windows :: proc(ctx: ^mu.Context) {
         mu.begin_panel(ctx, "Log")
             mu.layout_row(ctx, {-1}, -1)
             mu.text(ctx, read_log())
-            if state.log_buf_updated {
+            if mu_state.log_buf_updated {
                 panel := mu.get_current_container(ctx)
                 panel.scroll.y = panel.content_size.y
-                state.log_buf_updated = false
+                mu_state.log_buf_updated = false
             }
         mu.end_panel(ctx)
         
