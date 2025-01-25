@@ -1,0 +1,9 @@
+# Possibly a text format for defining autos?
+gol = Moore {
+    dead: #6b3636 default dead {
+        .3 to alive
+    }
+    alive: #FFFFFF default dead {
+        .[23] to alive
+    }
+}

@@ -5,6 +5,15 @@ import "core:fmt"
 import "core:strconv"
 import "core:math/rand"
 
+COMMANDS :: [][2]string{
+    {"place <count> <type>", ""},
+    {"clear",                ""},
+    {"auto <name>",          ""},
+    {"rate <rate>",          ""},
+    {"reload",               ""},
+    {"steps <rate>",         ""},
+}
+
 // Parses and runs a command
 runCommand :: proc(input: string) -> union{string} {
     input := strings.trim(input, " \t\n")
@@ -26,10 +35,16 @@ runCommand :: proc(input: string) -> union{string} {
             case "clear": {
                 reset_log()
                 fillCells(activeGrid, {0,nil,nil})
+                stepsPerTick = 1
+                updateRate = 5
                 return nil
             }
             case "auto", "a": {
+                if (len(args) == 1) {
+                    return fmt.tprintf("Cur auto: %s", activeCAName)
+                }
                 argCount(len(args), 1, "auto") or_return
+                fmt.println(args, len(args))
                 name := args[1]
                 if name == "?" || name == "list" {
                     ret := "Available autos"
@@ -65,6 +80,19 @@ runCommand :: proc(input: string) -> union{string} {
                     return "Loaded autos.xml"
                 }
             }
+            case "steps": {
+                argCount(len(args), 1, "steps") or_return
+                val := intArg(args[1], "rate", 0, 10) or_return
+                stepsPerTick = val
+                return "Updated Steps per tick"
+            }
+            case "help", "?": {
+                ret := "Available commands"
+                for s in COMMANDS {
+                    ret = fmt.tprintf("%s\n- %s",ret, s[0])
+                }
+                return ret
+            }
             // Default case falls through
         }
     }
@@ -73,7 +101,7 @@ runCommand :: proc(input: string) -> union{string} {
 
 // Simple arg count check
 argCount :: proc(count, expected: int, commandName: string) -> union{string} {
-    if count < expected {
+    if count - 1 < expected {
         return fmt.tprintf("Command %s requires %d arguments, but got only %d", commandName, expected, count)
     }
     return nil

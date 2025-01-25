@@ -96,7 +96,13 @@
     <auto name="test" neighborhood="Plus">
         <state name="0" default="0" color="000000"></state>
         <state name="1" default="0" color="FFFFFF">
-            <ts to="1">3.</ts>
+            <ts to="1">3...</ts>
+        </state>
+        <state name="2" default="1" color="ABABAB">
+            <ts to="2">....</ts>
+        </state>
+        <state name="3" default="2" color="ABCDEF">
+            <ts to="1">.21.</ts>
         </state>
     </auto>
 </autos>

@@ -48,6 +48,7 @@ step := false
 
 // How many ticks between each iteration
 updateRate := 5
+stepsPerTick := 1
 
 main :: proc() {
     using rl
@@ -83,7 +84,9 @@ main :: proc() {
     for !WindowShouldClose() {
         handleInput(activeGrid, activeCA)
         if (!paused && tick % updateRate == 0) || step {
-            updateGrid(activeGrid, activeCA)
+            for i := 0; i < stepsPerTick; i += 1 {
+                updateGrid(activeGrid, activeCA)
+            }
             if step do step = false
         }
         tick += 1
