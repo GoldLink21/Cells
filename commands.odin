@@ -4,6 +4,7 @@ import "core:strings"
 import "core:fmt"
 import "core:strconv"
 import "core:math/rand"
+import "core:slice"
 
 COMMANDS :: [][2]string{
     {"place <count> <type>", ""},
@@ -12,6 +13,9 @@ COMMANDS :: [][2]string{
     {"rate <rate>",          ""},
     {"reload",               ""},
     {"steps <rate>",         ""},
+    {"scatter <amount>",     ""},
+    {"test <auto>",          ""},
+    {"probe <auto>",         ""},
 }
 
 // Parses and runs a command
@@ -19,7 +23,7 @@ runCommand :: proc(input: string) -> union{string} {
     input := strings.trim(input, " \t\n")
     if len(input) == 0 do return nil
     if len(input) != 0 {
-        args := strings.split(input, " ")
+        args := strings.fields(input)
         defer delete(args)
         switch args[0] {
             case "place", "p": {
@@ -44,12 +48,20 @@ runCommand :: proc(input: string) -> union{string} {
                     return fmt.tprintf("Cur auto: %s", activeCAName)
                 }
                 argCount(len(args), 1, "auto") or_return
-                fmt.println(args, len(args))
                 name := args[1]
                 if name == "?" || name == "list" {
                     ret := "Available autos"
+                    // Sort keys in array
+                    names := make([]string, len(autos))
+                    defer delete(names)
+                    nameIndex := 0
                     for k, _ in autos {
-                        ret = fmt.tprintf("%s\n- %s",ret, k)
+                        names[nameIndex] = k
+                        nameIndex += 1
+                    }
+                    slice.sort(names)
+                    for name in names {
+                        ret = fmt.tprintf("%s\n- %s",ret, name)
                     }
                     return ret
                 }
@@ -66,7 +78,7 @@ runCommand :: proc(input: string) -> union{string} {
                 return fmt.tprintf("Set update rate to '%d'", updateRate)
             }
             case "reload": {
-                if !readAutosXML() {
+                if !reloadAllXML() {
                     return "Could not load autos.xml"
                 } else {
                     // Cleanup
@@ -85,6 +97,66 @@ runCommand :: proc(input: string) -> union{string} {
                 val := intArg(args[1], "rate", 0, 10) or_return
                 stepsPerTick = val
                 return "Updated Steps per tick"
+            }
+            case "scatter": {
+                argCount(len(args), 1, "scatter") or_return
+                val := intArg(args[1], "amount", 0, 10000) or_return
+                for i := 0; i < activeCA.states; i += 1 {
+                    for j in 0..<val {
+                        x, y := rand.int_max(int(GRID_SIZE)),rand.int_max(int(GRID_SIZE))
+                        setCellState(x, y, activeGrid, i)
+                    }
+                }
+                return "Scattered"
+            }
+            case "test": {
+                // Same as auto <name> + scatter N_CELLS/<N_STATES> 
+                if (len(args) != 1) {
+
+                    argCount(len(args), 1, "test") or_return
+                    name := args[1]
+                    if name == "?" || name == "list" {
+                        ret := "Available autos"
+                        for k, _ in autos {
+                            ret = fmt.tprintf("%s\n- %s",ret, k)
+                        }
+                        return ret
+                    }
+                    if name not_in autos {
+                        return fmt.tprintf("Invalid auto name '%s'", name)
+                    }
+                    changeAuto(name)
+                }
+                val := (GRID_SIZE * GRID_SIZE) / i32(activeCA.states)
+                for i := 0; i < activeCA.states; i += 1 {
+                    for j in 0..<val {
+                        x, y := rand.int_max(int(GRID_SIZE)),rand.int_max(int(GRID_SIZE))
+                        setCellState(x, y, activeGrid, i)
+                    }
+                }
+                return ""
+            }
+            case "probe": {
+                toProbe := activeCAName
+                if len(args) != 1 {
+                    toProbe = args[1]
+                }
+                if toProbe not_in autos {
+                    return fmt.tprintf("Auto '%s' does not exist", toProbe)
+                }
+                a := autos[toProbe]
+                sb: strings.Builder
+                fmt.sbprintf(&sb, "Auto '%s'\n", toProbe)
+
+                for ts,i in a.ts {
+                    fmt.sbprintf(&sb, "  %d => %d%s\n", i, ts.default, len(ts.rules) == 0 ? "" : "")
+                    for rule in ts.rules {
+                        fmt.sbprintf(&sb, "    %s => %d\n", rule.cond, rule.endState)
+                    }
+                }
+                out := fmt.tprintf("%s", strings.to_string(sb))
+                strings.builder_destroy(&sb)
+                return out
             }
             case "help", "?": {
                 ret := "Available commands"

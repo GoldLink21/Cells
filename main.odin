@@ -54,7 +54,7 @@ main :: proc() {
     using rl
     SetTraceLogLevel(.ERROR)
 
-    if !readAutosXML() {
+    if !reloadAllXML() {
         exitf("Could not load Autos")
     }
 

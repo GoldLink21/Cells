@@ -15,32 +15,79 @@ YELLOW :: rl.YELLOW
 RED    :: rl.RED
 GREEN  :: rl.GREEN
 
-readAutosXML :: proc() -> (succ:bool) {
-    bytes, ok := os.read_entire_file_from_filename("autos.xml")
-    if !ok {
-        fmt.printfln("Could not open autos.xml")
+// Reloads all XML files in autos/*
+reloadAllXML :: proc() -> (succ:bool) {
+    newAutos : map[string]CA
+    // Open FD
+    ad, err := os.open("autos")
+    if err != nil do return false
+    defer os.close(ad)
+    // Read Dirs
+    files, dirErr := os.read_dir(ad, -1)
+    if dirErr != nil do return false
+    defer os.file_info_slice_delete(files)
+    // Iterate files
+    for file in files {
+        // Grab all XML files
+        if strings.ends_with(file.name, ".xml") {
+            ret, good := readAutosXML(file.fullpath)
+            // Put into existing
+            if good {
+                for k,v in ret {
+                    newAutos[k] = v
+                }
+                delete_map(ret)
+            } else {
+                fmt.printf("WARN: could not read XML file '%s'\n", file.name)
+            }
+        }
+    }
+    if len(newAutos) == 0 {
+        // Fails only if no autos were added
+        delete_map(newAutos)
         return false
+    }
+    // Cleanup existing autos only if success
+    for k in autos {
+        dk, dv := delete_key(&autos, k)
+        delete(dk)
+        for ts in dv.ts {
+            for rule in ts.rules do delete(rule.cond)
+            delete(ts.rules)
+        }
+        delete(dv.ts)
+        delete(dv.colors)
+    }
+    delete_map(autos)
+
+    autos = newAutos
+    return true
+}
+
+readAutosXML :: proc(file:string = "autos/_root.xml") -> (ret:map[string]CA, succ:bool) {
+    bytes, ok := os.read_entire_file_from_filename(file)
+    if !ok {
+        fmt.printfln("Could not open '%s'", file)
+        return nil, false
     }
     defer delete(bytes)
     doc, err := xml.parse_bytes(bytes)
     if err != nil {
-        fmt.printfln("Could not parse autos.xml as XML")
-        return false
+        fmt.printfln("Could not parse '%s' as XML", file)
+        return nil, false
     }
     defer xml.destroy(doc)
-    // fmt.println(doc.elements[0])
-    // auto_id, found := xml.find_child_by_ident(doc, 0, "autos") 
-    // if !found {
-    //     fmt.printfln("Could not find root autos element")
-    //     return false
-    // }
-    // auto := doc.elements[auto_id]
+
+    // Assumption that doc.element is <autos>
     auto := doc.elements[0]
-
+    if auto.ident != "autos" {
+        fmt.printfln("Root XML element of file '%s' was not <autos>", file)
+        return nil, false
+    }
     newAutos := make(map[string]CA)
-    
     // Create new autos
-
+    // TODO: Free created autos if failed
+    
     // <auto name="name" neighborhood="Moore">
     for autoId in auto.value {
         id := autoId.(xml.Element_ID)
@@ -55,11 +102,6 @@ readAutosXML :: proc() -> (succ:bool) {
                 newAuto.neighborhood = NeighborhoodFromString[attr.val]
             }
         }
-        // Verify name and neighborhood
-        // if name == "" || newAuto.neighborhood == nil {
-        //     fmt.printfln("Invalid auto def: %s %s", name, newAuto.neighborhood)
-        //     return false
-        // }
         // Set up newAuto
         newAuto.states  = len(doc.elements[id].value)
         newAuto.colors  = make([]rl.Color, newAuto.states)
@@ -82,7 +124,7 @@ readAutosXML :: proc() -> (succ:bool) {
                     )
                     if !ok {
                         fmt.printfln("Invalid color number")
-                        return false
+                        return nil, false
                     }
                     newAuto.colors[i] = rl.GetColor(u32(nv))
                 }
@@ -91,7 +133,7 @@ readAutosXML :: proc() -> (succ:bool) {
                     def, ok := strconv.parse_int(attr.val)
                     if !ok || def >= newAuto.states {
                         fmt.printfln("Invalid default number")
-                        return false
+                        return nil, false
                     }
                     newAuto.ts[i].default = def
                 }
@@ -104,7 +146,7 @@ readAutosXML :: proc() -> (succ:bool) {
                 toVal, ok := strconv.parse_int(ts.attribs[0].val)
                 if !ok {
                     fmt.printfln("Invalid to number")
-                    return false
+                    return nil, false
                 }
                 newAuto.ts[i].rules[j] = {
                     cond = strings.clone(ts.value[0].(string)),
@@ -113,25 +155,8 @@ readAutosXML :: proc() -> (succ:bool) {
             }
         }
         newAutos[name] = newAuto
-        // fmt.println(newAuto)
     }
-
-    // Cleanup existing autos only if success
-    for k in autos {
-        dk, dv := delete_key(&autos, k)
-        delete(dk)
-        for ts in dv.ts {
-            for rule in ts.rules do delete(rule.cond)
-            delete(ts.rules)
-        }
-        delete(dv.ts)
-        delete(dv.colors)
-    }
-    delete_map(autos)
-    autos = newAutos
-    
-    // fmt.println(autos)
-    return true
+    return newAutos, true
 }
 
 GOL_AUTO := CA{

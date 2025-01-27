@@ -1,0 +1,87 @@
+<?xml version="1.1" standalone='no'?>
+<!-- Testing ground for new autos -->
+<autos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:noNamespaceSchemaLocation="autos.xsd">
+    <!-- Almost seeds? -->
+    <auto name="_qpy" neighborhood="Moore">
+        <state name="0" color="4b5d05" default="0">
+            <ts to="1">6!0</ts>
+            <ts to="1">.5</ts>
+        </state>
+        <state name="1" color="c95814" default="0">
+            <ts to="1">!75</ts>
+            <ts to="1">16</ts>
+        </state>
+    </auto>
+
+    <auto name="_qbc" neighborhood="BigX">
+        <state name="0" color="da8787" default="0">
+            <ts to="1">00</ts>
+            <ts to="1">7.</ts>
+        </state>
+        <state name="1" color="8b8af0" default="0">
+            <ts to="1">56</ts>
+        </state>
+    </auto>
+
+    <auto name="_aiy" neighborhood="Hat">
+        <state name="0" color="d9e1c2" default="0">
+            <ts to="2">.01.0.</ts>
+            <ts to="2">[01]..202</ts>
+            <ts to="4">.0.0.2</ts>
+        </state>
+        <state name="1" color="b05c37" default="2">
+            <ts to="4">[01]..10.</ts>
+            <ts to="1">.01.[01]1</ts>
+            <ts to="4">.112[01].</ts>
+        </state>
+        <state name="2" color="278469" default="2">
+            <ts to="5">...0..</ts>
+        </state>
+        <state name="3" color="dd3647" default="0">
+            <ts to="4">[0]2..12</ts>
+        </state>
+        <state name="4" color="6133d6" default="1">
+        </state>
+        <state name="5" color="cc87bd" default="0">
+            <ts to="2">..[1]020</ts>
+            <ts to="5">[2][2]...1</ts>
+            <ts to="2">1[2]210[01]</ts>
+        </state>
+    </auto>
+    <auto name="_axb" neighborhood="Neuman">
+        <state name="0" color="3a5589" default="0">
+            <ts to="2">6[01267][01257]</ts>
+        </state>
+        <state name="1" color="1601b9" default="0">
+            <ts to="1">..6</ts>
+        </state>
+        <state name="2" color="8a86be" default="1">
+            <ts to="2">[012457][01247][7]</ts>
+        </state>
+    </auto>
+
+    <auto name="_adv" neighborhood="Plus">
+        <state name="0" color="0117ec" default="0">
+            <ts to="1">[23]...[013]2</ts>
+        </state>
+        <state name="1" color="0140a7" default="2">
+            <ts to="0">.[012]..2[01]</ts>
+        </state>
+        <state name="2" color="4ee2ea" default="4">
+            <ts to="5">[023]..[01].0</ts>
+        </state>
+        <state name="3" color="397cb5" default="2">
+            <ts to="5">.0.[3].0</ts>
+        </state>
+        <state name="4" color="1c7db9" default="1">
+            <ts to="0">.[013].013</ts>
+        </state>
+        <state name="5" color="d8da00" default="2">
+            <ts to="3">02[01].[1]2</ts>
+        </state>
+    </auto>
+<!-- ================================================= -->
+ 
+<!-- ================================================= -->
+</autos>
